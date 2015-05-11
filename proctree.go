@@ -23,6 +23,7 @@ const (
 
 	StatLength = 44 // fields
 	BaseDir = "/proc"
+	PageSize = 4 * 1024
 )
 
 var processes map[string]*Process
@@ -123,15 +124,15 @@ func printChildren(process *Process, depth int, siblings []bool) {
 
 	str += " \\_ " + ansi.Color(process.Pid, "blue") + " " + ansi.Color(process.Name, "green")
 	fmt.Printf(
-		"%-60s  %5s  %5s   %5d  %5d  %-10s  %-10s   %-10d  %10d\n",
+		"%-60s  %5s  %5s   %5d  %5d  %-10d  %-10s   %-10d  %10d\n",
 		str,
 		process.Utime,
 		process.Stime,
 		accum.Utime,
 		accum.Stime,
-		process.Rsize,
+		getInt(process.Rsize)*PageSize,
 		process.Vsize,
-		accum.Rsize,
+		accum.Rsize*PageSize,
 		accum.Vsize,
 	)
 
@@ -149,6 +150,13 @@ type Accumulator struct {
 	Vsize int64
 }
 
+func (a *Accumulator) Accumulate(process *Process) {
+	a.Stime += getInt(process.Stime)
+	a.Utime += getInt(process.Utime)
+	a.Rsize += getInt(process.Rsize)
+	a.Vsize += getInt(process.Vsize)
+}
+
 func getInt(str string) int64 {
 	val, err := strconv.ParseInt(str, 10, 0)
 	if err != nil {
@@ -164,10 +172,7 @@ func recursiveAccumulate(pid string, accum *Accumulator) {
 		return
 	}
 
-	accum.Stime += getInt(process.Stime)
-	accum.Utime += getInt(process.Utime)
-	accum.Rsize += getInt(process.Rsize)
-	accum.Vsize += getInt(process.Vsize)
+	accum.Accumulate(process)
 
 	if len(process.Children) > 0 {
 		for _, child := range process.Children {
@@ -208,7 +213,7 @@ func main() {
 	recursiveAccumulate(matchPid, &accum)
 	endTime := time.Now()
 
-	fmt.Printf("%-42s  %5s  %5s   %5s  %5s  %-10s  %-10s  %-10s  %-10s\n",
+	fmt.Printf(ansi.Color("%-42s  %5s  %5s   %5s  %5s  %-10s  %-10s  %-10s  %-10s", "yellow") + "\n",
 		"Process", "UTime", "STime", "Ttl S", "Ttl U", "Rsize", "Vsize",
 		"Ttl Rs", "Ttl Vs",
 	)
