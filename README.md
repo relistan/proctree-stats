@@ -8,7 +8,7 @@ for Utime, Stime, Rsize, Vsize for all processes in the tree.
 This is particularly useful for finding out things like "how much memory
 is Nginx using?", for example.
 
-Boring, uncolored output example:
+Uncolored output example (real output is colorized):
 
 ```ansi
 Process                                     UTime  STime   Ttl S  Ttl U  Rsize       Vsize       Ttl Rs      Ttl Vs
