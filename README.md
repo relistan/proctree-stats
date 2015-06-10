@@ -11,6 +11,8 @@ is Nginx using?", for example.
 Uncolored output example (real output is colorized):
 
 ```ansi
+$ ./proctree 1
+
 Process                                     UTime  STime   Ttl S  Ttl U  Rsize       Vsize       Ttl Rs      Ttl Vs
  \_ 1 (init)                                  981    966   150901  27140  3399680     26566656     102555648   2983481344
     \_ 1070 (getty)                             0      0       0      0  335872      16166912     335872        16166912
